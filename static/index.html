@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>ArcGIS AI | AI Services</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css">
+    <link rel="stylesheet" href="app.css">
+    <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.js"></script>
+    <script defer src="https://js.arcgis.com/4.34/"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body data-phase="idle">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="ArcGIS AI home">
+        <i data-lucide="audio-lines" aria-hidden="true"></i>
+        <span>ArcGIS <strong>AI</strong></span>
+      </a>
+      <div id="account" class="account" hidden>
+        <span id="username"></span>
+        <button id="sign-out" class="icon-button" type="button" title="Sign out" aria-label="Sign out">
+          <i data-lucide="log-out" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <p id="error" class="error" role="alert" hidden></p>
+
+      <section id="workspace" aria-labelledby="workspace-title">
+        <div class="workspace-heading">
+          <div>
+            <div class="section-marker">Audio / Text</div>
+            <h1 id="workspace-title">Transcription</h1>
+          </div>
+          <div class="workspace-controls">
+            <fieldset class="engine-field">
+              <legend>Engine</legend>
+              <div class="engine-options">
+                <label class="engine-option">
+                  <input id="engine-esri" type="radio" name="engine" value="esri" checked>
+                  <span><i data-lucide="cloud" aria-hidden="true"></i>Esri API</span>
+                </label>
+                <label id="browser-option" class="engine-option">
+                  <input id="engine-browser" type="radio" name="engine" value="browser">
+                  <span><i data-lucide="speech" aria-hidden="true"></i>Browser</span>
+                </label>
+              </div>
+            </fieldset>
+            <div class="language-field">
+              <label for="language">Language</label>
+              <select id="language">
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="zh">Chinese</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="login" class="login" aria-labelledby="login-title">
+          <h2 id="login-title">ArcGIS sign-in</h2>
+          <form id="sign-in-form">
+            <label for="portal-url">Portal URL</label>
+            <input id="portal-url" name="portal" type="url" value="https://excalibur.mapsdevext.arcgis.com" autocomplete="url" spellcheck="false" required>
+            <button id="sign-in" class="primary-button" type="submit" disabled>
+              <span>Sign in with ArcGIS</span>
+              <i data-lucide="arrow-right" aria-hidden="true"></i>
+            </button>
+          </form>
+          <p id="login-status" class="muted" role="status">Loading ArcGIS...</p>
+        </div>
+
+        <div class="transcript-toolbar">
+          <label for="transcript">Transcript</label>
+          <div class="transcript-actions">
+            <span id="word-count" class="muted">0 words</span>
+            <button id="copy" class="icon-button" type="button" title="Copy transcript" aria-label="Copy transcript" disabled>
+              <i data-lucide="copy" aria-hidden="true"></i>
+            </button>
+            <button id="clear" class="icon-button" type="button" title="Clear transcript" aria-label="Clear transcript" disabled>
+              <i data-lucide="trash-2" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+        <textarea id="transcript" spellcheck="true" aria-label="Transcript"></textarea>
+
+        <div class="recording-bar">
+          <div class="recording-state">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="status" role="status">Ready</span>
+            <span id="duration" class="duration" aria-label="Recording duration">00:00</span>
+          </div>
+          <canvas id="waveform" width="400" height="80" aria-hidden="true"></canvas>
+          <div class="recording-actions">
+            <button id="cancel" class="icon-button" type="button" title="Cancel recording or request (Escape)" aria-label="Cancel recording or request" hidden>
+              <i data-lucide="square" aria-hidden="true"></i>
+            </button>
+            <button id="talk" class="talk-button" type="button" title="Hold to talk (Ctrl+Space); release to transcribe" aria-label="Hold to talk" aria-keyshortcuts="Control+Space" aria-pressed="false">
+              <i data-lucide="mic" aria-hidden="true"></i>
+              <span>Hold to talk</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="text-analysis" class="analysis-section" aria-labelledby="analysis-title">
+        <div class="workspace-heading">
+          <div>
+            <div class="section-marker">Text / Analysis</div>
+            <h2 id="analysis-title">Text Analysis</h2>
+          </div>
+          <button id="analysis-sign-in" class="secondary-button" type="button" disabled>
+            <i data-lucide="log-in" aria-hidden="true"></i>
+            <span>Sign in with ArcGIS</span>
+          </button>
+        </div>
+        <p id="analysis-error" class="error" role="alert" hidden></p>
+
+        <form id="analysis-form">
+          <div class="transcript-toolbar">
+            <label for="analysis-input">Source text</label>
+            <div class="transcript-actions">
+              <span id="analysis-word-count" class="muted">0 words</span>
+              <button id="analysis-clear-input" class="icon-button" type="button" title="Clear source text" aria-label="Clear source text" disabled>
+                <i data-lucide="trash-2" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <textarea id="analysis-input" class="large-text" spellcheck="true" required></textarea>
+
+          <div class="analysis-prompt">
+            <label for="analysis-prompt">Prompt</label>
+            <input id="analysis-prompt" type="text" value="Summarize the key points." required>
+          </div>
+          <div class="analysis-bar">
+            <span id="analysis-status" class="muted" role="status">Sign in required</span>
+            <div class="analysis-actions">
+              <button id="analysis-cancel" class="icon-button" type="button" title="Cancel analysis" aria-label="Cancel analysis" hidden>
+                <i data-lucide="square" aria-hidden="true"></i>
+              </button>
+              <button id="analysis-run" class="primary-button" type="submit" disabled>
+                <i data-lucide="sparkles" aria-hidden="true"></i>
+                <span>Analyze</span>
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div class="transcript-toolbar">
+          <label for="analysis-output">Response</label>
+          <div class="transcript-actions">
+            <button id="analysis-copy" class="icon-button" type="button" title="Copy analysis responses" aria-label="Copy analysis responses" disabled>
+              <i data-lucide="copy" aria-hidden="true"></i>
+            </button>
+            <button id="analysis-clear-output" class="icon-button" type="button" title="Clear analysis responses" aria-label="Clear analysis responses" disabled>
+              <i data-lucide="trash-2" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+        <textarea id="analysis-output" class="large-text" spellcheck="false" readonly></textarea>
+      </section>
+
+      <section id="text-translation" class="analysis-section" aria-labelledby="translation-title">
+        <div class="workspace-heading">
+          <div>
+            <div class="section-marker">Text / Translation</div>
+            <h2 id="translation-title">Text Translation</h2>
+          </div>
+          <button id="translation-sign-in" class="secondary-button" type="button" disabled>
+            <i data-lucide="log-in" aria-hidden="true"></i>
+            <span>Sign in with ArcGIS</span>
+          </button>
+        </div>
+        <p id="translation-error" class="error" role="alert" hidden></p>
+
+        <form id="translation-form">
+          <div class="translation-languages">
+            <div class="language-field">
+              <label for="translation-from">Source language</label>
+              <select id="translation-from" required>
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="zh">Chinese</option>
+              </select>
+            </div>
+            <button id="translation-swap" class="icon-button" type="button" title="Swap languages" aria-label="Swap languages">
+              <i data-lucide="arrow-right-left" aria-hidden="true"></i>
+            </button>
+            <div class="language-field">
+              <label for="translation-to">Target language</label>
+              <select id="translation-to" required>
+                <option value="en">English</option>
+                <option value="es" selected>Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="zh">Chinese</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="transcript-toolbar">
+            <label for="translation-input">Source text</label>
+            <div class="transcript-actions">
+              <span id="translation-word-count" class="muted">0 words</span>
+              <button id="translation-clear-input" class="icon-button" type="button" title="Clear translation source text" aria-label="Clear translation source text" disabled>
+                <i data-lucide="trash-2" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <textarea id="translation-input" class="large-text" spellcheck="true" required></textarea>
+
+          <div class="analysis-bar">
+            <span id="translation-status" class="muted" role="status">Sign in required</span>
+            <div class="analysis-actions">
+              <button id="translation-cancel" class="icon-button" type="button" title="Cancel translation" aria-label="Cancel translation" hidden>
+                <i data-lucide="square" aria-hidden="true"></i>
+              </button>
+              <button id="translation-run" class="primary-button" type="submit" disabled>
+                <i data-lucide="languages" aria-hidden="true"></i>
+                <span>Translate</span>
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div class="transcript-toolbar">
+          <label for="translation-output">Translation</label>
+          <div class="transcript-actions">
+            <button id="translation-copy" class="icon-button" type="button" title="Copy translations" aria-label="Copy translations" disabled>
+              <i data-lucide="copy" aria-hidden="true"></i>
+            </button>
+            <button id="translation-clear-output" class="icon-button" type="button" title="Clear translations" aria-label="Clear translations" disabled>
+              <i data-lucide="trash-2" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+        <textarea id="translation-output" class="large-text" spellcheck="false" readonly></textarea>
+      </section>
+      <section id="image-analysis" class="analysis-section" aria-labelledby="image-analysis-title">
+        <div class="workspace-heading">
+          <div>
+            <div class="section-marker">Image / Analysis</div>
+            <h2 id="image-analysis-title">Image Analysis</h2>
+          </div>
+          <button id="image-analysis-sign-in" class="secondary-button" type="button" disabled>
+            <i data-lucide="log-in" aria-hidden="true"></i><span>Sign in with ArcGIS</span>
+          </button>
+        </div>
+        <p id="image-analysis-error" class="error" role="alert" hidden></p>
+        <div class="scene-toolbar">
+          <span class="field-label">Scene</span>
+          <div class="scene-actions">
+            <span id="image-analysis-scene-status" class="muted" role="status">Loading scene</span>
+            <button id="image-analysis-capture" class="secondary-button" type="button" title="Use a screenshot of the current scene" disabled>
+              <i data-lucide="camera" aria-hidden="true"></i><span>Use screenshot</span>
+            </button>
+          </div>
+        </div>
+        <p id="image-analysis-scene-error" class="error" role="alert" hidden></p>
+        <div id="image-analysis-scene" class="image-scene" role="region" aria-label="3D scene for image analysis"></div>
+        <form id="image-analysis-form">
+          <div class="transcript-toolbar">
+            <label for="image-analysis-input">Image</label>
+            <button id="image-analysis-clear-input" class="icon-button" type="button" title="Remove image" aria-label="Remove analysis image" disabled><i data-lucide="x" aria-hidden="true"></i></button>
+          </div>
+          <input id="image-analysis-input" class="media-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" required>
+          <p id="image-analysis-file-info" class="muted file-info"></p>
+          <img id="image-analysis-preview" class="media-preview" alt="Selected image" hidden>
+          <div class="analysis-prompt">
+            <label for="image-analysis-prompt">Prompt</label>
+            <input id="image-analysis-prompt" type="text" value="Describe the image and its key details." required>
+          </div>
+          <div class="analysis-bar">
+            <span id="image-analysis-status" class="muted" role="status">Sign in required</span>
+            <div class="analysis-actions">
+              <button id="image-analysis-cancel" class="icon-button" type="button" title="Cancel image analysis" aria-label="Cancel image analysis" hidden><i data-lucide="square" aria-hidden="true"></i></button>
+              <button id="image-analysis-run" class="primary-button" type="submit" disabled><i data-lucide="scan-eye" aria-hidden="true"></i><span>Analyze</span></button>
+            </div>
+          </div>
+        </form>
+        <div class="transcript-toolbar">
+          <label for="image-analysis-output">Response</label>
+          <div class="transcript-actions">
+            <button id="image-analysis-copy" class="icon-button" type="button" title="Copy image analysis responses" aria-label="Copy image analysis responses" disabled><i data-lucide="copy" aria-hidden="true"></i></button>
+            <button id="image-analysis-clear-output" class="icon-button" type="button" title="Clear image analysis responses" aria-label="Clear image analysis responses" disabled><i data-lucide="trash-2" aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <textarea id="image-analysis-output" class="large-text" spellcheck="false" readonly></textarea>
+      </section>
+
+      <section id="image-extract" class="analysis-section" aria-labelledby="image-extract-title">
+        <div class="workspace-heading">
+          <div>
+            <div class="section-marker">Image / Text</div>
+            <h2 id="image-extract-title">Image Text Extraction</h2>
+          </div>
+          <button id="image-extract-sign-in" class="secondary-button" type="button" disabled><i data-lucide="log-in" aria-hidden="true"></i><span>Sign in with ArcGIS</span></button>
+        </div>
+        <p id="image-extract-error" class="error" role="alert" hidden></p>
+        <form id="image-extract-form">
+          <div class="transcript-toolbar">
+            <label for="image-extract-input">Image</label>
+            <button id="image-extract-clear-input" class="icon-button" type="button" title="Remove image" aria-label="Remove extraction image" disabled><i data-lucide="x" aria-hidden="true"></i></button>
+          </div>
+          <input id="image-extract-input" class="media-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp" required>
+          <p id="image-extract-file-info" class="muted file-info"></p>
+          <img id="image-extract-preview" class="media-preview" alt="Selected image" hidden>
+          <div class="analysis-prompt">
+            <label for="image-extract-prompt">Prompt</label>
+            <input id="image-extract-prompt" type="text" value="Extract all text from the image in reading order." required>
+          </div>
+          <div class="analysis-bar">
+            <span id="image-extract-status" class="muted" role="status">Sign in required</span>
+            <div class="analysis-actions">
+              <button id="image-extract-cancel" class="icon-button" type="button" title="Cancel text extraction" aria-label="Cancel text extraction" hidden><i data-lucide="square" aria-hidden="true"></i></button>
+              <button id="image-extract-run" class="primary-button" type="submit" disabled><i data-lucide="scan-text" aria-hidden="true"></i><span>Extract text</span></button>
+            </div>
+          </div>
+        </form>
+        <div class="transcript-toolbar">
+          <label for="image-extract-output">Extracted text</label>
+          <div class="transcript-actions">
+            <button id="image-extract-copy" class="icon-button" type="button" title="Copy extracted text" aria-label="Copy extracted text" disabled><i data-lucide="copy" aria-hidden="true"></i></button>
+            <button id="image-extract-clear-output" class="icon-button" type="button" title="Clear extracted text" aria-label="Clear extracted text" disabled><i data-lucide="trash-2" aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <textarea id="image-extract-output" class="large-text" spellcheck="false" readonly></textarea>
+      </section>
+
+      <section id="file-analysis" class="analysis-section" aria-labelledby="file-analysis-title">
+        <div class="workspace-heading">
+          <div>
+            <div class="section-marker">Document / Analysis</div>
+            <h2 id="file-analysis-title">File Analysis</h2>
+          </div>
+          <button id="file-analysis-sign-in" class="secondary-button" type="button" disabled><i data-lucide="log-in" aria-hidden="true"></i><span>Sign in with ArcGIS</span></button>
+        </div>
+        <p id="file-analysis-error" class="error" role="alert" hidden></p>
+        <form id="file-analysis-form">
+          <div class="transcript-toolbar">
+            <label for="file-analysis-input">PDF document</label>
+            <button id="file-analysis-clear-input" class="icon-button" type="button" title="Remove PDF" aria-label="Remove PDF" disabled><i data-lucide="x" aria-hidden="true"></i></button>
+          </div>
+          <input id="file-analysis-input" class="media-input" type="file" accept="application/pdf,.pdf" required>
+          <p id="file-analysis-file-info" class="muted file-info"></p>
+          <div class="analysis-prompt">
+            <label for="file-analysis-prompt">Prompt</label>
+            <input id="file-analysis-prompt" type="text" value="Summarize the document's key points." required>
+          </div>
+          <div class="analysis-bar">
+            <span id="file-analysis-status" class="muted" role="status">Sign in required</span>
+            <div class="analysis-actions">
+              <button id="file-analysis-cancel" class="icon-button" type="button" title="Cancel file analysis" aria-label="Cancel file analysis" hidden><i data-lucide="square" aria-hidden="true"></i></button>
+              <button id="file-analysis-run" class="primary-button" type="submit" disabled><i data-lucide="file-search" aria-hidden="true"></i><span>Analyze</span></button>
+            </div>
+          </div>
+        </form>
+        <div class="transcript-toolbar">
+          <label for="file-analysis-output">Response</label>
+          <div class="transcript-actions">
+            <button id="file-analysis-copy" class="icon-button" type="button" title="Copy file analysis responses" aria-label="Copy file analysis responses" disabled><i data-lucide="copy" aria-hidden="true"></i></button>
+            <button id="file-analysis-clear-output" class="icon-button" type="button" title="Clear file analysis responses" aria-label="Clear file analysis responses" disabled><i data-lucide="trash-2" aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <textarea id="file-analysis-output" class="large-text" spellcheck="false" readonly></textarea>
+      </section>
+      <section id="audio-speech" class="analysis-section" aria-labelledby="audio-speech-title">
+        <div class="workspace-heading">
+          <div>
+            <div class="section-marker">Text / Audio</div>
+            <h2 id="audio-speech-title">Text to Speech</h2>
+          </div>
+          <button id="audio-speech-sign-in" class="secondary-button" type="button" disabled><i data-lucide="log-in" aria-hidden="true"></i><span>Sign in with ArcGIS</span></button>
+        </div>
+        <p id="audio-speech-error" class="error" role="alert" hidden></p>
+        <form id="audio-speech-form">
+          <div class="speech-settings">
+            <div class="language-field">
+              <label for="audio-speech-language">Language</label>
+              <select id="audio-speech-language" required>
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="ja">Japanese</option>
+                <option value="ko">Korean</option>
+                <option value="zh">Chinese</option>
+              </select>
+            </div>
+            <div class="language-field">
+              <label for="audio-speech-rate">Speech rate</label>
+              <select id="audio-speech-rate" required>
+                <option value="x-slow">Very slow</option>
+                <option value="slow">Slow</option>
+                <option value="medium" selected>Normal</option>
+                <option value="fast">Fast</option>
+                <option value="x-fast">Very fast</option>
+              </select>
+            </div>
+          </div>
+          <div class="transcript-toolbar">
+            <label for="audio-speech-input">Text</label>
+            <div class="transcript-actions">
+              <span id="audio-speech-word-count" class="muted">0 words</span>
+              <button id="audio-speech-clear-input" class="icon-button" type="button" title="Clear speech text" aria-label="Clear speech text" disabled><i data-lucide="trash-2" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <textarea id="audio-speech-input" class="large-text" spellcheck="true" required></textarea>
+          <div class="analysis-bar">
+            <span id="audio-speech-status" class="muted" role="status">Sign in required</span>
+            <div class="analysis-actions">
+              <button id="audio-speech-cancel" class="icon-button" type="button" title="Cancel speech generation" aria-label="Cancel speech generation" hidden><i data-lucide="square" aria-hidden="true"></i></button>
+              <button id="audio-speech-run" class="primary-button" type="submit" disabled><i data-lucide="volume-2" aria-hidden="true"></i><span>Generate</span></button>
+            </div>
+          </div>
+        </form>
+        <div class="transcript-toolbar">
+          <span id="audio-speech-output-label" class="field-label">Generated audio</span>
+          <button id="audio-speech-clear-output" class="icon-button" type="button" title="Clear generated audio" aria-label="Clear generated audio" disabled><i data-lucide="trash-2" aria-hidden="true"></i></button>
+        </div>
+        <ol id="audio-speech-output" class="speech-clips" aria-labelledby="audio-speech-output-label"></ol>
+      </section>
+      <noscript><p class="error">JavaScript is required to use the AI tools.</p></noscript>
+    </main>
+    <footer class="footer"><span>ArcGIS AI Server</span><span>AI Services</span></footer>
+  </body>
+</html>
