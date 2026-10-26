@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>ArcGIS AI | Search by appearance</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css">
+    <link rel="stylesheet" href="../apis/app.css">
+    <link rel="stylesheet" href="app.css">
+    <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.js"></script>
+    <script defer src="https://js.arcgis.com/4.34/"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../../index.html" aria-label="ArcGIS AI home">
+        <i data-lucide="map" aria-hidden="true"></i>
+        <span>ArcGIS <strong>AI</strong></span>
+      </a>
+      <div id="account" class="account" hidden>
+        <span id="username"></span>
+        <button id="sign-out" class="icon-button" type="button" title="Sign out" aria-label="Sign out">
+          <i data-lucide="log-out" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+    <main class="map-layout">
+      <div id="map-view" role="region" aria-label="Imagery map"></div>
+      <section class="search-panel" aria-labelledby="search-title">
+        <div>
+          <h1 id="search-title">Search by appearance</h1>
+          <p id="map-status" class="muted" role="status">Loading map...</p>
+        </div>
+        <p id="error" class="error" role="alert" hidden></p>
+        <div id="login" class="login" aria-labelledby="login-title">
+          <h2 id="login-title">ArcGIS sign-in</h2>
+          <form id="sign-in-form">
+            <label for="portal-url">Portal URL</label>
+            <input id="portal-url" name="portal" type="url" value="https://excalibur.mapsdevext.arcgis.com" autocomplete="url" spellcheck="false" required>
+            <button id="sign-in" class="primary-button" type="submit" disabled>
+              <span>Sign in with ArcGIS</span><i data-lucide="arrow-right" aria-hidden="true"></i>
+            </button>
+          </form>
+          <p id="login-status" class="muted" role="status">Loading ArcGIS...</p>
+        </div>
+        <form id="search-form">
+          <label for="search-query">Appearance</label>
+          <textarea id="search-query" name="appearance" rows="3" maxlength="1000" required>Large paved areas beside buildings</textarea>
+          <label class="search-toggle"><input id="search-sequential" name="sequential" type="checkbox" checked>Sequential requests</label>
+          <div class="search-controls">
+            <div class="grid-field">
+              <label for="grid-size">Grid</label>
+              <select id="grid-size" name="grid">
+                <option value="3">3 x 3 (9 regions)</option>
+                <option value="4" selected>4 x 4 (16 regions)</option>
+                <option value="6">6 x 6 (36 regions)</option>
+              </select>
+            </div>
+            <button id="search-cancel" class="icon-button" type="button" title="Cancel search" aria-label="Cancel search" hidden>
+              <i data-lucide="square" aria-hidden="true"></i>
+            </button>
+            <button id="search-run" class="primary-button" type="submit" disabled>
+              <i data-lucide="search" aria-hidden="true"></i><span>Search this view</span>
+            </button>
+          </div>
+          <p id="search-status" class="muted" role="status">Sign in required</p>
+        </form>
+        <section id="results" aria-labelledby="results-title">
+          <div class="results-heading">
+            <h2 id="results-title">Regions</h2>
+            <div class="result-actions">
+              <button id="return-area" class="icon-button" type="button" title="Return to searched area" aria-label="Return to searched area" disabled>
+                <i data-lucide="locate-fixed" aria-hidden="true"></i>
+              </button>
+              <button id="clear-results" class="icon-button" type="button" title="Clear results" aria-label="Clear results" disabled>
+                <i data-lucide="trash-2" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <p id="results-query"></p>
+          <p id="results-summary" class="muted" role="status"></p>
+          <div class="results-filter">
+            <label for="results-filter">Show</label>
+            <select id="results-filter" disabled>
+              <option value="match">Matches</option>
+              <option value="uncertain">Uncertain</option>
+              <option value="no_match">No match</option>
+              <option value="all">All regions</option>
+            </select>
+          </div>
+          <p id="results-empty" class="muted">No search results</p>
+          <ul id="results-list"></ul>
+        </section>
+        <details class="raw-response">
+          <summary>Response</summary>
+          <textarea id="raw-output" rows="8" aria-label="Raw response" readonly spellcheck="false"></textarea>
+        </details>
+      </section>
+    </main>
+    <template id="result-template">
+      <li>
+        <button class="region-result" type="button" aria-controls="map-view">
+          <img width="88" height="76" alt="">
+          <span class="region-body">
+            <span class="region-heading"><strong class="region-name"></strong><span class="region-status"></span></span>
+            <span class="region-evidence"></span>
+          </span>
+          <i data-lucide="arrow-up-right" aria-hidden="true"></i>
+        </button>
+      </li>
+    </template>
+  </body>
+</html>

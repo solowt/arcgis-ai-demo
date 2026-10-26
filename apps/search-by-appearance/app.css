@@ -1,0 +1,61 @@
+body { height: 100dvh; }
+.topbar { flex-shrink: 0; }
+.map-layout { display: grid; grid-template-columns: minmax(0, 1fr) 420px; flex: 1; min-height: 0; }
+#map-view { min-width: 0; min-height: 0; background: #e9edef; }
+.search-panel { display: flex; flex-direction: column; gap: 20px; min-width: 0; padding: 24px; overflow-y: auto; border-left: 1px solid var(--line); background: var(--surface); }
+.search-panel h1 { margin: 0; font-size: 22px; line-height: 1.3; }
+.search-panel h2 { margin: 0; font-size: 18px; font-weight: 500; }
+.search-panel p { margin: 0; overflow-wrap: anywhere; }
+#map-status { margin-top: 8px; }
+.search-panel .login { margin: 0; padding: 0; border: 0; }
+.search-panel .login h2 { margin-bottom: 12px; }
+#sign-in-form { grid-template-columns: minmax(0, 1fr); }
+#login-status:not(:empty) { margin-top: 8px; }
+#search-form { display: grid; gap: 10px; padding-top: 20px; border-top: 1px solid var(--line); }
+#search-query, #raw-output { display: block; width: 100%; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); color: var(--ink); font-size: 15px; line-height: 1.6; resize: vertical; }
+.search-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; }
+.search-toggle input { width: 16px; height: 16px; min-height: 0; margin: 0; flex-shrink: 0; accent-color: var(--accent); }
+.search-controls { display: grid; grid-template-columns: minmax(0, 1fr) 44px; align-items: end; gap: 10px; }
+.grid-field { min-width: 0; }
+.grid-field label { margin-bottom: 6px; }
+.grid-field select { width: 100%; }
+#search-cancel { grid-column: 2; grid-row: 1; }
+#search-run { grid-column: 1 / -1; justify-content: center; }
+#search-status { min-height: 20px; }
+#results { display: grid; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+.results-heading, .result-actions { display: flex; align-items: center; gap: 4px; }
+.results-heading { justify-content: space-between; }
+#results-query { font-size: 14px; line-height: 1.5; }
+#results-query:empty, #results-summary:empty { display: none; }
+.results-filter { display: flex; align-items: center; gap: 12px; }
+.results-filter select { flex: 1; min-width: 0; }
+#results-empty { padding: 16px 0; }
+#results-list { list-style: none; margin: 0; padding: 0; }
+#results-list li { border-bottom: 1px solid var(--line); }
+.region-result { display: grid; grid-template-columns: 88px minmax(0, 1fr) 18px; align-items: start; gap: 10px; width: 100%; padding: 14px 4px; text-align: left; color: var(--ink); background: transparent; border: 0; border-left: 3px solid transparent; border-radius: 0; }
+.region-result:hover { background: #f0f6f5; }
+.region-result[aria-pressed="true"] { border-left-color: var(--accent); background: #eaf4f1; }
+.region-result img { display: block; width: 88px; height: 76px; object-fit: contain; background: #e9edef; }
+.region-result svg { width: 18px; height: 18px; color: var(--muted); }
+.region-body { display: grid; gap: 6px; min-width: 0; }
+.region-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+.region-name { font-size: 14px; font-weight: 500; }
+.region-status { font-size: 12px; color: var(--accent); }
+[data-status="uncertain"] .region-status { color: #995700; }
+[data-status="no_match"] .region-status { color: var(--muted); }
+.region-evidence { font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.raw-response { border-top: 1px solid var(--line); padding-top: 14px; }
+.raw-response summary { cursor: pointer; font-size: 14px; font-weight: 500; min-height: 32px; }
+#raw-output { font-size: 12px; min-height: 160px; }
+
+@media (max-width: 760px) {
+  body { height: auto; }
+  .map-layout { grid-template-columns: minmax(0, 1fr); }
+  #map-view { height: 52dvh; min-height: 320px; }
+  .search-panel { padding: 24px 20px; overflow-y: visible; border-left: 0; border-top: 1px solid var(--line); }
+}
+
+@media (max-width: 360px) {
+  .region-result { grid-template-columns: 64px minmax(0, 1fr) 18px; }
+  .region-result img { width: 64px; height: 64px; }
+}

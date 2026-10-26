@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>ArcGIS AI | Find objects in map image</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css">
+    <link rel="stylesheet" href="../apis/app.css">
+    <link rel="stylesheet" href="app.css">
+    <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.js"></script>
+    <script defer src="https://js.arcgis.com/4.34/"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../../index.html" aria-label="ArcGIS AI home">
+        <i data-lucide="map" aria-hidden="true"></i>
+        <span>ArcGIS <strong>AI</strong></span>
+      </a>
+      <div id="account" class="account" hidden>
+        <span id="username"></span>
+        <button id="sign-out" class="icon-button" type="button" title="Sign out" aria-label="Sign out">
+          <i data-lucide="log-out" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="map-layout">
+      <div id="map-view" role="region" aria-label="Map"></div>
+      <section class="analysis-panel" aria-labelledby="analysis-title">
+        <div>
+          <h1 id="analysis-title">Find objects in map image</h1>
+          <p id="map-status" class="muted" role="status">Loading map...</p>
+        </div>
+        <p id="error" class="error" role="alert" hidden></p>
+
+        <div id="login" class="login" aria-labelledby="login-title">
+          <h2 id="login-title">ArcGIS sign-in</h2>
+          <form id="sign-in-form">
+            <label for="portal-url">Portal URL</label>
+            <input id="portal-url" name="portal" type="url" value="https://excalibur.mapsdevext.arcgis.com" autocomplete="url" spellcheck="false" required>
+            <button id="sign-in" class="primary-button" type="submit" disabled>
+              <span>Sign in with ArcGIS</span>
+              <i data-lucide="arrow-right" aria-hidden="true"></i>
+            </button>
+          </form>
+          <p id="login-status" class="muted" role="status">Loading ArcGIS...</p>
+        </div>
+
+        <form id="analysis-form">
+          <label for="analysis-object">Object</label>
+          <input id="analysis-object" name="object" type="text" value="house" required>
+          <label for="analysis-prompt">Prompt</label>
+          <textarea id="analysis-prompt" rows="6" required></textarea>
+          <div class="analysis-options">
+            <label class="analysis-toggle"><input id="analysis-sequential" name="sequential" type="checkbox" checked>Sequential requests</label>
+            <label class="analysis-toggle"><input id="analysis-verify" name="verify" type="checkbox">Verify detections</label>
+            <label class="analysis-toggle"><input id="analysis-uncertain" name="uncertain" type="checkbox" disabled>Show uncertain</label>
+          </div>
+          <p id="analysis-legend" class="detection-legend" hidden><span class="confirmed">Confirmed</span><span class="uncertain">Uncertain</span></p>
+          <div class="analysis-actions">
+            <button id="analysis-cancel" class="icon-button" type="button" title="Cancel analysis" aria-label="Cancel analysis" hidden>
+              <i data-lucide="square" aria-hidden="true"></i>
+            </button>
+            <button id="analysis-run" class="primary-button" type="submit" disabled>
+              <i data-lucide="scan-eye" aria-hidden="true"></i>
+              <span>Analyze</span>
+            </button>
+          </div>
+          <p id="analysis-status" class="muted" role="status">Sign in required</p>
+        </form>
+
+        <div class="response-heading">
+          <label for="analysis-output">Response</label>
+          <button id="capture-open" class="icon-button" type="button" title="Inspect captured image" aria-label="Inspect captured image" disabled>
+            <i data-lucide="image" aria-hidden="true"></i>
+          </button>
+        </div>
+        <textarea id="analysis-output" spellcheck="false" readonly></textarea>
+      </section>
+    </main>
+
+    <dialog id="capture-dialog" aria-labelledby="capture-title">
+      <header class="capture-heading">
+        <div>
+          <h2 id="capture-title">Captured image</h2>
+          <p id="capture-info" class="muted" role="status"></p>
+        </div>
+        <button id="capture-close" class="icon-button" type="button" title="Close captured image" aria-label="Close captured image">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </header>
+      <div class="capture-controls">
+        <label class="capture-toggle"><input id="capture-boxes" type="checkbox" checked>Boxes</label>
+        <fieldset class="engine-field">
+          <legend>Scale</legend>
+          <div class="engine-options">
+            <label class="engine-option"><input id="capture-fit" type="radio" name="capture-scale" value="fit" checked><span>Fit</span></label>
+            <label class="engine-option"><input id="capture-actual" type="radio" name="capture-scale" value="actual"><span>100%</span></label>
+          </div>
+        </fieldset>
+      </div>
+      <div id="capture-viewport" data-size="fit" tabindex="0" role="region" aria-label="Captured image viewport">
+        <canvas id="capture-canvas" role="img" aria-label="Captured image with returned bounding boxes"></canvas>
+      </div>
+    </dialog>
+  </body>
+</html>
