@@ -703,7 +703,7 @@ function createVerificationSheet(imageData, boxes) {
     ui["login-status"].textContent = "";
     try {
       const imageryLayer = new ImageryLayer({
-        url: "https://imagery.idt.geocloud.com/image/rest/services/satellite/sanfran_wv2_ms_PS/ImageServer",
+        url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Oblique/WU_Ortho/ImageServer",
       });
       await imageryLayer.load();
       if (closed || mapState === "error") return;
@@ -711,7 +711,6 @@ function createVerificationSheet(imageData, boxes) {
         container: ui["map-view"],
         map: new Map({ basemap: "satellite", layers: [imageryLayer] }),
         extent: imageryLayer.fullExtent,
-        zoom: 17
       });
       await view.when();
       if (closed || mapState === "error") return;
