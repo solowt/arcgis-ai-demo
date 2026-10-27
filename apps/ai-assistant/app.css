@@ -1,0 +1,42 @@
+body { height: 100dvh; min-height: 0; overflow: hidden; }
+.topbar { flex: 0 0 auto; flex-wrap: wrap; }
+.topbar h1 { margin: 0; font-size: 18px; line-height: 1.3; overflow-wrap: anywhere; }
+#dictation-account { margin-left: auto; max-width: 100%; }
+#dictation-username { min-width: 0; max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.transcription-login { flex: 0 0 auto; padding: 12px 32px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.transcription-login h2 { margin: 0 0 8px; font-size: 16px; font-weight: 500; }
+#dictation-sign-in-form { display: flex; align-items: flex-end; gap: 12px; max-width: 720px; }
+.portal-field { flex: 1; min-width: 0; }
+.portal-field label { margin-bottom: 4px; }
+.portal-field input { width: 100%; }
+#dictation-sign-in { flex-shrink: 0; width: auto; }
+#dictation-login-status { min-height: 18px; margin: 8px 0 0; overflow-wrap: anywhere; }
+.map-layout { position: relative; flex: 1; min-height: 0; container-type: size; }
+arcgis-map { display: block; width: 100%; height: 100%; }
+arcgis-assistant {
+  display: block;
+  width: min(380px, calc(100vw - 64px));
+  height: min(600px, calc(100cqh - 48px));
+  --calcite-font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
+}
+.map-status, .map-layout > .error {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  left: 64px;
+  right: 64px;
+  width: fit-content;
+  max-width: calc(100% - 128px);
+  margin: 0;
+}
+.map-status { padding: 10px 14px; background: var(--surface); color: var(--muted); font-size: 14px; }
+.dictation-status { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; color: var(--muted); font-size: 13px; }
+.dictation-status [role="status"] { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .topbar { gap: 12px; }
+  .topbar h1 { font-size: 16px; }
+  .transcription-login { padding-left: 20px; padding-right: 20px; }
+  #dictation-sign-in-form { flex-direction: column; align-items: stretch; }
+  #dictation-account { justify-content: flex-end; flex-basis: 100%; }
+  arcgis-assistant { width: 100%; height: min(600px, calc(100dvh - 140px)); }
+}

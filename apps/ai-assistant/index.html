@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>ArcGIS AI | AI Assistant</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../apis/app.css">
+    <link rel="stylesheet" href="app.css">
+    <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.js"></script>
+    <script type="module" src="https://js.arcgis.com/5.1/"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../../index.html" aria-label="ArcGIS AI home">
+        <i data-lucide="map" aria-hidden="true"></i>
+        <span>ArcGIS <strong>AI</strong></span>
+      </a>
+      <h1>AI Assistant</h1>
+      <div id="dictation-account" class="account" hidden>
+        <span id="dictation-username"></span>
+        <button id="dictation-sign-out" class="icon-button" type="button" title="Disconnect transcription" aria-label="Disconnect transcription">
+          <i data-lucide="log-out" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+    <section id="dictation-login" class="transcription-login" aria-labelledby="dictation-login-title">
+      <h2 id="dictation-login-title">Transcription sign-in</h2>
+      <form id="dictation-sign-in-form">
+        <div class="portal-field">
+          <label for="dictation-portal-url">Portal URL</label>
+          <input id="dictation-portal-url" type="url" value="https://excalibur.mapsdevext.arcgis.com" autocomplete="url" spellcheck="false" required>
+        </div>
+        <button id="dictation-sign-in" class="primary-button" type="submit" disabled>
+          <i data-lucide="log-in" aria-hidden="true"></i>
+          <span>Sign in with ArcGIS</span>
+        </button>
+      </form>
+      <p id="dictation-login-status" class="muted" role="status">Loading ArcGIS...</p>
+    </section>
+    <main class="map-layout" aria-label="AI Assistant map">
+      <p id="load-status" class="map-status" role="status">Loading map...</p>
+      <p id="error" class="error" role="alert" hidden></p>
+      <arcgis-map id="assistant-map" item-id="c13bffcad4a244a99062e915e9bc1dc3">
+        <arcgis-zoom slot="top-left"></arcgis-zoom>
+        <arcgis-home slot="top-left"></arcgis-home>
+        <arcgis-expand id="assistant-panel" slot="top-right" expand-icon="speech-bubble" expand-tooltip="AI Assistant" collapse-tooltip="Hide AI Assistant">
+          <arcgis-assistant reference-element="#assistant-map" heading="AI Assistant">
+            <arcgis-assistant-navigation-agent></arcgis-assistant-navigation-agent>
+            <div class="dictation-status" slot="footer-content">
+              <span id="dictation-status" role="status" aria-live="polite"></span>
+              <button id="dictation-cancel" class="icon-button" type="button" title="Cancel dictation" aria-label="Cancel dictation" hidden>
+                <i data-lucide="square" aria-hidden="true"></i>
+              </button>
+            </div>
+          </arcgis-assistant>
+        </arcgis-expand>
+      </arcgis-map>
+    </main>
+  </body>
+</html>
