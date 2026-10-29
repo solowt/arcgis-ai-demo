@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>ArcGIS AI | Public deep learning models</title>
+    <link rel="icon" href="data:,">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css">
+    <link rel="stylesheet" href="../apis/app.css">
+    <link rel="stylesheet" href="../find-objects/app.css">
+    <link rel="stylesheet" href="app.css">
+    <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.js"></script>
+    <script defer src="https://js.arcgis.com/4.34/"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../../index.html" aria-label="ArcGIS AI home">
+        <i data-lucide="map" aria-hidden="true"></i>
+        <span>ArcGIS <strong>AI</strong></span>
+      </a>
+      <div id="account" class="account" hidden>
+        <span id="username"></span>
+        <button id="sign-out" class="icon-button" type="button" title="Sign out" aria-label="Sign out">
+          <i data-lucide="log-out" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="map-layout">
+      <div id="map-view" role="region" aria-label="Map"></div>
+      <section class="analysis-panel" aria-labelledby="analysis-title">
+        <div>
+          <h1 id="analysis-title">Public deep learning models</h1>
+          <p id="map-status" class="muted" role="status">Loading map...</p>
+        </div>
+        <p id="error" class="error" role="alert" hidden></p>
+
+        <div id="login" class="login" aria-labelledby="login-title">
+          <h2 id="login-title">ArcGIS sign-in</h2>
+          <form id="sign-in-form">
+            <label for="portal-url">Portal URL</label>
+            <input id="portal-url" name="portal" type="url" value="https://excalibur.mapsdevext.arcgis.com" autocomplete="url" spellcheck="false" required>
+            <button id="sign-in" class="primary-button" type="submit" disabled>
+              <span>Sign in with ArcGIS</span>
+              <i data-lucide="arrow-right" aria-hidden="true"></i>
+            </button>
+          </form>
+          <p id="login-status" class="muted" role="status">Loading ArcGIS...</p>
+        </div>
+        <p id="service-status" class="muted" role="status">Sign in to discover your portal's raster-analysis service.</p>
+
+        <form id="analysis-form">
+          <label for="analysis-model">Esri model</label>
+          <select id="analysis-model" name="model">
+            <option value="buildings">Building Footprint Extraction - USA</option>
+            <option value="cars">Car Detection - USA</option>
+            <option value="text-sam">Text SAM</option>
+          </select>
+          <p id="model-description" class="muted"></p>
+          <a id="model-link" target="_blank" rel="noopener noreferrer">View public model and terms of use</a>
+
+          <div id="prompt-field" class="model-field" hidden>
+            <label for="analysis-prompt">Objects to segment</label>
+            <input id="analysis-prompt" name="prompt" type="text" value="buildings" placeholder="buildings, cars, trees" disabled>
+            <p class="muted">Text SAM accepts object descriptions separated by commas, not questions.</p>
+          </div>
+          <div class="parameter-grid">
+            <div class="model-field">
+              <label for="analysis-threshold">Confidence threshold</label>
+              <input id="analysis-threshold" name="threshold" type="number" min="0" max="1" step="0.01" value="0.5" required>
+            </div>
+            <div class="model-field">
+              <label for="analysis-cell-size">Cell size (map meters)</label>
+              <input id="analysis-cell-size" name="cellSize" type="number" min="0.01" step="any" value="0.3" required>
+            </div>
+          </div>
+          <p id="extent-info" class="muted" role="status">Zoom to an area of interest before running.</p>
+          <div class="credit-notice">
+            <p>These Esri models are publicly available; running them in ArcGIS Online consumes credits and creates a hosted feature layer. Zoom in to reduce processing and cost.</p>
+            <label class="analysis-toggle" for="credit-consent">
+              <input id="credit-consent" type="checkbox" required>
+              I authorize credit usage and hosted output for this run.
+            </label>
+          </div>
+          <div class="analysis-actions">
+            <button id="analysis-cancel" class="secondary-button" type="button" hidden>Cancel job</button>
+            <button id="analysis-run" class="primary-button" type="submit" aria-describedby="analysis-status" disabled>
+              <i data-lucide="scan-eye" aria-hidden="true"></i>
+              <span>Run model</span>
+            </button>
+          </div>
+          <p id="analysis-status" class="muted" role="status">Sign in required</p>
+          <a id="job-link" target="_blank" rel="noopener noreferrer" hidden>View server job status</a>
+          <a id="output-link" target="_blank" rel="noopener noreferrer" hidden>Open latest saved output</a>
+        </form>
+
+        <section class="results-section" aria-labelledby="results-title">
+          <div class="response-heading">
+            <h2 id="results-title">Map results</h2>
+            <button id="clear-results" class="icon-button" type="button" title="Clear map results, not saved layers" aria-label="Clear map results, not saved layers" disabled>
+              <i data-lucide="trash-2" aria-hidden="true"></i>
+            </button>
+          </div>
+          <ul id="result-list"></ul>
+          <p class="muted">Use the map's Layers control to compare models. Each run is saved to My Content. Clearing the map, rerunning, or signing out does not delete saved layers or stop their storage charges.</p>
+        </section>
+
+        <details>
+          <summary>Job details</summary>
+          <label class="field-label" for="analysis-output">Request and server messages</label>
+          <textarea id="analysis-output" rows="10" spellcheck="false" readonly></textarea>
+        </details>
+        <details class="requirements">
+          <summary>Requirements and model availability</summary>
+          <p>ArcGIS Online requires a Professional or Professional Plus user type and a role with imagery-analysis and publishing privileges. The selected portal must expose Detect Objects Using Deep Learning through its raster-analysis service.</p>
+          <p>Analysis uses the original WU Ortho image service, not a map screenshot or the analyze-image API. The current map extent is clipped to the imagery bounds and captured when you run. Cell size uses the source's Web Mercator map units (EPSG:3857). Keep this page open until the job finishes or cancellation is confirmed.</p>
+          <p>If Run model is disabled, its status and tooltip explain the blocker. The map must stop moving and overlap the WU Ortho imagery, but background tile loading does not prevent server analysis. Changing the map bounds or model settings resets credit consent.</p>
+          <p>Results can contain a hosted item ID or a feature-service URL. Both are loaded as map layers; saved-output links open the portal item or the returned service URL, respectively.</p>
+          <p>Canceling asks the server to stop; it does not refund credits already used or delete outputs. If the connection fails, use the job-status link before retrying.</p>
+          <p><a href="https://doc.arcgis.com/en/arcgis-online/analyze/detect-objects-using-deep-learning-mv-ra.htm" target="_blank" rel="noopener noreferrer">ArcGIS Online requirements and credits</a></p>
+          <p><a href="https://doc.arcgis.com/en/pretrained-models/latest/imagery/introduction-to-geospatial-vision-language-model.htm" target="_blank" rel="noopener noreferrer">GeoVLM</a> is documented as a private beta, so it is not included in this public-model demo.</p>
+        </details>
+      </section>
+    </main>
+  </body>
+</html>

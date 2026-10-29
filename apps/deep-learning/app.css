@@ -1,0 +1,25 @@
+.map-layout { grid-template-columns: minmax(0, 1fr) 420px; }
+.analysis-panel a { color: var(--accent); font-size: 13px; overflow-wrap: anywhere; text-underline-offset: 3px; }
+.analysis-panel a:hover { color: var(--accent-dark); }
+.analysis-panel h2 { margin: 0; font-size: 17px; font-weight: 500; }
+.analysis-panel .login h2 { margin-bottom: 16px; }
+.model-field { display: grid; gap: 8px; min-width: 0; }
+.model-field input, #analysis-model { width: 100%; min-width: 0; }
+.parameter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+#analysis-prompt { min-height: 44px; padding: 10px 12px; }
+.credit-notice { padding: 12px; border: 1px solid #d5bd79; border-radius: 4px; background: #fffaec; font-size: 13px; line-height: 1.5; }
+.credit-notice .analysis-toggle { align-items: flex-start; margin-top: 12px; }
+.credit-notice input { margin-top: 3px; }
+.results-section { padding-top: 12px; border-top: 1px solid var(--line); }
+#result-list { display: grid; gap: 12px; list-style: none; padding: 0; margin: 12px 0; }
+#result-list li { display: flex; align-items: baseline; gap: 8px; }
+.result-swatch { display: inline-block; flex-shrink: 0; width: 12px; height: 12px; border: 1px solid #0003; }
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; font-size: 14px; font-weight: 500; }
+details .field-label { margin: 12px 0 8px; }
+.requirements p { margin-top: 12px; font-size: 13px; line-height: 1.6; }
+#analysis-output { min-height: 180px; font-family: monospace; font-size: 12px; }
+
+@media (max-width: 760px) {
+  .map-layout { grid-template-columns: minmax(0, 1fr); }
+}
