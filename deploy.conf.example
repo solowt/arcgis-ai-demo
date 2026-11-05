@@ -1,0 +1,5 @@
+# SSH host alias or user@hostname. Configure ports and keys in ~/.ssh/config.
+REMOTE_HOST=""
+
+# Absolute directory on the remote machine, served as the site's document root.
+REMOTE_DIR="/var/www/arcgis-ai-demo"

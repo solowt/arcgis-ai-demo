@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>ArcGIS AI | Helper Services Assistant</title>
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="%APP_HOME_URL%" aria-label="ArcGIS AI apps"
+        ><i data-lucide="layers" aria-hidden="true"></i
+        ><span>ArcGIS <strong>AI</strong></span></a
+      >
+      <h1>Helper Services Assistant</h1>
+      <div id="account" class="account" hidden>
+        <span id="username"></span>
+        <button
+          id="sign-out"
+          class="icon-button"
+          type="button"
+          title="Sign out"
+          aria-label="Sign out"
+        >
+          <i data-lucide="log-out" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+    <section id="login" class="login" aria-label="ArcGIS sign-in">
+      <form id="sign-in-form">
+        <label for="portal-url">ArcGIS portal</label>
+        <input
+          id="portal-url"
+          type="url"
+          value="https://excalibur.mapsdevext.arcgis.com"
+          required
+          autocomplete="url"
+          spellcheck="false"
+        />
+        <button id="sign-in" class="primary-button" type="submit" disabled>
+          <i data-lucide="log-in" aria-hidden="true"></i
+          ><span>Sign in with ArcGIS</span>
+        </button>
+      </form>
+      <span id="login-status" class="muted" role="status"
+        >Loading ArcGIS...</span
+      >
+    </section>
+    <p id="error" class="error" role="alert" hidden></p>
+    <main class="workspace">
+      <section class="chat-pane" aria-label="Assistant chat">
+        <div id="assistant-container">
+          <p id="assistant-loading" class="loading" role="status">
+            Loading assistant...
+          </p>
+        </div>
+        <section class="attachments" aria-label="Attachment">
+          <div class="attachment-toolbar">
+            <h2>Attachment</h2>
+            <div class="actions">
+              <input
+                id="attachment-input"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,application/pdf,application/json,.json,audio/*"
+                hidden
+              />
+              <button
+                id="attach"
+                class="icon-button"
+                type="button"
+                title="Attach image, PDF, audio, or JSON"
+                aria-label="Attach file"
+              >
+                <i data-lucide="paperclip" aria-hidden="true"></i>
+              </button>
+              <button
+                id="remove-attachment"
+                class="icon-button"
+                type="button"
+                title="Remove attachment"
+                aria-label="Remove attachment"
+                disabled
+              >
+                <i data-lucide="x" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <div class="attachment-summary">
+            <img id="attachment-preview" alt="" hidden />
+            <span id="attachment-name" class="muted" role="status"
+              >No attachment</span
+            >
+          </div>
+        </section>
+      </section>
+      <section class="map-pane" aria-labelledby="map-title">
+        <header class="pane-header">
+          <div class="pane-title">
+            <i data-lucide="map" aria-hidden="true"></i>
+            <h2 id="map-title">Map</h2>
+            <span id="map-status" class="muted" role="status">Loading</span>
+          </div>
+          <div class="actions">
+            <label class="visually-hidden" for="basemap">Basemap</label>
+            <select id="basemap" aria-label="Basemap">
+              <option value="satellite">Imagery</option>
+              <option value="osm">OpenStreetMap</option>
+              <option value="topo-vector">Topographic</option>
+            </select>
+            <button
+              id="capture-map"
+              class="icon-button"
+              type="button"
+              title="Attach map screenshot"
+              aria-label="Attach map screenshot"
+              disabled
+            >
+              <i data-lucide="camera" aria-hidden="true"></i>
+            </button>
+            <button
+              id="clear-map"
+              class="icon-button"
+              type="button"
+              title="Clear result markers"
+              aria-label="Clear result markers"
+              disabled
+            >
+              <i data-lucide="map-pin-off" aria-hidden="true"></i>
+            </button>
+          </div>
+        </header>
+        <arcgis-map
+          id="helper-map"
+          basemap="satellite"
+          center="-122.4194,37.7749"
+          zoom="11"
+        >
+          <arcgis-zoom slot="top-left"></arcgis-zoom>
+          <arcgis-home slot="top-left"></arcgis-home>
+          <arcgis-search slot="top-right" collapsed></arcgis-search>
+        </arcgis-map>
+      </section>
+      <section class="results-pane" aria-labelledby="results-title">
+        <header class="pane-header">
+          <div class="pane-title">
+            <i data-lucide="panel-bottom" aria-hidden="true"></i>
+            <h2 id="results-title">Results</h2>
+            <span id="result-count" class="count">0</span>
+          </div>
+          <div class="actions">
+            <button
+              id="copy-result"
+              class="icon-button"
+              type="button"
+              title="Copy result"
+              aria-label="Copy result"
+              disabled
+            >
+              <i data-lucide="copy" aria-hidden="true"></i>
+            </button>
+            <button
+              id="download-result"
+              class="icon-button"
+              type="button"
+              title="Download result JSON"
+              aria-label="Download result JSON"
+              disabled
+            >
+              <i data-lucide="download" aria-hidden="true"></i>
+            </button>
+            <button
+              id="clear-results"
+              class="icon-button"
+              type="button"
+              title="Clear results"
+              aria-label="Clear results"
+              disabled
+            >
+              <i data-lucide="trash-2" aria-hidden="true"></i>
+            </button>
+          </div>
+        </header>
+        <div class="result-toolbar">
+          <label class="visually-hidden" for="result-selection"
+            >Service result</label
+          >
+          <select id="result-selection" disabled>
+            <option value="">No results</option>
+          </select>
+          <div class="tabs" role="tablist" aria-label="Result format">
+            <button
+              id="output-tab"
+              type="button"
+              role="tab"
+              aria-controls="output-panel"
+              aria-selected="true"
+            >
+              Output
+            </button>
+            <button
+              id="json-tab"
+              type="button"
+              role="tab"
+              aria-controls="json-panel"
+              aria-selected="false"
+              tabindex="-1"
+            >
+              JSON
+            </button>
+          </div>
+        </div>
+        <div
+          id="output-panel"
+          class="result-content"
+          role="tabpanel"
+          aria-labelledby="output-tab"
+          tabindex="0"
+        >
+          <p class="empty-state">No results yet</p>
+        </div>
+        <pre
+          id="json-panel"
+          class="result-content json"
+          role="tabpanel"
+          aria-labelledby="json-tab"
+          tabindex="0"
+          hidden
+        ></pre>
+        <footer class="results-footer">
+          <span id="task-status" role="status">Ready</span
+          ><span id="result-endpoint" class="muted"></span>
+        </footer>
+      </section>
+    </main>
+    <noscript>JavaScript is required to use this assistant.</noscript>
+  </body>
+</html>

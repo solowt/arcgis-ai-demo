@@ -10,9 +10,14 @@ const source = readFileSync(join(__dirname, "app.js"), "utf8");
 
 function createContext(overrides = {}) {
   const context = vm.createContext({
-    document: { querySelector: () => ({}), getElementById: () => ({}) },
+    document: {
+      querySelector: () => ({}),
+      getElementById: () => ({}),
+    },
     window: {},
-    customElements: { whenDefined: () => new Promise(() => {}) },
+    customElements: {
+      whenDefined: () => new Promise(() => {}),
+    },
     setTimeout() {},
     clearTimeout() {},
     Blob,
@@ -37,7 +42,10 @@ test("transcription sends recorded audio and the ArcGIS token using the existing
           success: true,
           results: [
             { value: "First sentence." },
-            { success: true, value: "Second sentence." },
+            {
+              success: true,
+              value: "Second sentence.",
+            },
           ],
         }),
       };
@@ -45,7 +53,9 @@ test("transcription sends recorded audio and the ArcGIS token using the existing
   });
   const controller = new AbortController();
   const result = await context.transcribeAudioDirect(
-    new Blob(["audio"], { type: "audio/webm;codecs=opus" }),
+    new Blob(["audio"], {
+      type: "audio/webm;codecs=opus",
+    }),
     "test-token",
     "en",
     controller.signal,
@@ -70,12 +80,16 @@ test("transcription sends recorded audio and the ArcGIS token using the existing
 
 test("transcription rejects missing audio types and unsuccessful service results", async () => {
   let response;
-  const context = createContext({ fetch: async () => response });
+  const context = createContext({
+    fetch: async () => response,
+  });
   await assert.rejects(
     context.transcribeAudioDirect(new Blob(["audio"]), "test-token"),
     /MIME type/,
   );
-  const blob = new Blob(["audio"], { type: "audio/webm" });
+  const blob = new Blob(["audio"], {
+    type: "audio/webm",
+  });
   response = { ok: false, status: 401 };
   await assert.rejects(context.transcribeAudioDirect(blob, "test-token"), {
     status: 401,
@@ -86,9 +100,15 @@ test("transcription rejects missing audio types and unsuccessful service results
     {},
     { success: true, results: [] },
     { success: true, results: [{ value: 123 }] },
-    { success: true, results: [{ value: "text", success: false }] },
+    {
+      success: true,
+      results: [{ value: "text", success: false }],
+    },
   ]) {
-    response = { ok: true, json: async () => result };
+    response = {
+      ok: true,
+      json: async () => result,
+    };
     await assert.rejects(
       context.transcribeAudioDirect(blob, "test-token"),
       /ArcGIS/,
@@ -119,7 +139,11 @@ async function createDictation({
     disabled: false,
     isConnected: true,
   };
-  const input = { localName: "textarea", disabled: false, readOnly: false };
+  const input = {
+    localName: "textarea",
+    disabled: false,
+    readOnly: false,
+  };
   const status = { textContent: "" };
   const error = { hidden: true, textContent: "" };
   const cancel = Object.assign(new EventTarget(), { hidden: true });
@@ -198,7 +222,9 @@ async function createDictation({
       queueMicrotask(() => {
         this.dispatchEvent(
           Object.assign(new Event("dataavailable"), {
-            data: new Blob([audio], { type: this.mimeType }),
+            data: new Blob([audio], {
+              type: this.mimeType,
+            }),
           }),
         );
         this.dispatchEvent(new Event("stop"));
@@ -294,7 +320,9 @@ async function createDictation({
     blurInput() {
       document.activeElement = null;
       document.dispatchEvent(
-        Object.assign(new Event("focusout"), { composedPath: () => path }),
+        Object.assign(new Event("focusout"), {
+          composedPath: () => path,
+        }),
       );
     },
     fireTimeout(delay) {
@@ -334,7 +362,9 @@ test("releasing Control also ends Ctrl+Space recording", async () => {
   app.entry.inputValue = "";
   app.start();
   await flush();
-  app.keyboard("keyup", "Control", { ctrlKey: false });
+  app.keyboard("keyup", "Control", {
+    ctrlKey: false,
+  });
   await flush();
   assert.equal(app.entry.inputValue, "Spoken words.");
   assert.equal(app.requests.length, 1);
@@ -355,7 +385,9 @@ test("the shortcut ignores other focus targets, modifiers, repeated keys, and di
     app.keyboard("keydown", " ", { repeat: true }).defaultPrevented,
     true,
   );
-  app.keyboard("keydown", "Shift", { shiftKey: true });
+  app.keyboard("keydown", "Shift", {
+    shiftKey: true,
+  });
   app.keyboard("keydown", "v");
   app.entry.disabled = true;
   app.start();
@@ -430,7 +462,10 @@ test("canceling a request prevents late text insertion and aborts its signal", a
     await flush();
     complete({
       ok: true,
-      json: async () => ({ success: true, results: [{ value: "Late text" }] }),
+      json: async () => ({
+        success: true,
+        results: [{ value: "Late text" }],
+      }),
     });
     await flush();
     assert.equal(app.requests[0].options.signal.aborted, true);
@@ -468,7 +503,9 @@ test("signed-out and expired sessions never start the microphone", async () => {
     null,
     { token: "expired", expires: Date.now() - 1 },
   ]) {
-    const app = await createDictation({ credential });
+    const app = await createDictation({
+      credential,
+    });
     app.start();
     assert.equal(app.microphoneCalls(), 0);
     assert.equal(app.error.hidden, false);
@@ -479,14 +516,18 @@ test("signed-out and expired sessions never start the microphone", async () => {
 test("microphone permission denial and empty recordings keep the draft intact", async () => {
   const denied = await createDictation({
     getUserMedia: async () => {
-      throw Object.assign(new Error("Denied"), { name: "NotAllowedError" });
+      throw Object.assign(new Error("Denied"), {
+        name: "NotAllowedError",
+      });
     },
   });
   denied.start();
   await flush();
   assert.match(denied.error.textContent, /permission was denied/);
   assert.equal(denied.cancel.hidden, true);
-  const empty = await createDictation({ audio: "" });
+  const empty = await createDictation({
+    audio: "",
+  });
   empty.start();
   await flush();
   empty.release();
@@ -519,7 +560,9 @@ test("recording duration is bounded and oversized recordings are discarded", asy
 });
 
 test("transcription login obtains its own portal token and uses it for the request", async () => {
-  const app = await createDictation({ signedIn: false });
+  const app = await createDictation({
+    signedIn: false,
+  });
   assert.equal(app.signIn.disabled, false);
   assert.equal(app.login.hidden, false);
   app.portalInput.value =
@@ -549,7 +592,9 @@ test("transcription login obtains its own portal token and uses it for the reque
 });
 
 test("invalid portal URLs never invoke ArcGIS sign-in", async () => {
-  const app = await createDictation({ signedIn: false });
+  const app = await createDictation({
+    signedIn: false,
+  });
   for (const url of [
     "not a URL",
     "http://example.com",
@@ -617,7 +662,10 @@ test("disconnecting aborts an in-flight request and prevents late insertion", as
   app.signOut.dispatchEvent(new Event("click"));
   complete({
     ok: true,
-    json: async () => ({ success: true, results: [{ value: "Late text" }] }),
+    json: async () => ({
+      success: true,
+      results: [{ value: "Late text" }],
+    }),
   });
   await flush();
   assert.equal(app.requests[0].options.signal.aborted, true);
@@ -659,7 +707,10 @@ test("leaving the page ignores a late sign-in result", async () => {
   app.submitLogin();
   assert.equal(app.authRequests.length, 1);
   app.window.dispatchEvent(new Event("pagehide"));
-  complete({ token: "late-token", userId: "late-user" });
+  complete({
+    token: "late-token",
+    userId: "late-user",
+  });
   await flush();
   assert.equal(app.login.hidden, false);
   assert.equal(app.account.hidden, true);

@@ -1,0 +1,23 @@
+{
+  "name": "helper-services-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test app.test.cjs",
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --outDir ."
+  },
+  "dependencies": {
+    "@arcgis/ai-components": "5.1.27",
+    "@arcgis/core": "5.1.27",
+    "@arcgis/map-components": "5.1.27",
+    "@esri/calcite-components": "5.1.2",
+    "lucide": "0.468.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "vite": "7.3.7"
+  }
+}
