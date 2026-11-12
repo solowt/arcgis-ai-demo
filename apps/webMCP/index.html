@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>ArcGIS AI | webMCP</title>
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="%APP_HOME_URL%" aria-label="ArcGIS AI apps">
+        <i data-lucide="layers" aria-hidden="true"></i>
+        <span>ArcGIS <strong>AI</strong></span>
+      </a>
+      <h1>webMCP</h1>
+      <div id="account" class="account" hidden>
+        <span id="username"></span>
+        <button
+          id="sign-out"
+          class="icon-button"
+          type="button"
+          title="Sign out"
+          aria-label="Sign out"
+        >
+          <i data-lucide="log-out" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+    <section id="login" class="login" aria-label="ArcGIS sign-in">
+      <form id="sign-in-form">
+        <label for="portal-url">ArcGIS portal</label>
+        <input
+          id="portal-url"
+          type="url"
+          value="https://excalibur.mapsdevext.arcgis.com"
+          required
+          autocomplete="url"
+          spellcheck="false"
+        />
+        <button id="sign-in" class="primary-button" type="submit" disabled>
+          <i data-lucide="log-in" aria-hidden="true"></i>
+          <span>Sign in with ArcGIS</span>
+        </button>
+      </form>
+      <span id="login-status" class="muted" role="status"
+        >Loading ArcGIS...</span
+      >
+    </section>
+    <section class="browser-status" aria-label="WebMCP browser support">
+      <span
+        id="webmcp-status"
+        class="status"
+        role="status"
+        data-state="pending"
+      >
+        Checking WebMCP...
+      </span>
+      <p id="webmcp-help" class="muted">
+        The same tool definitions power browser agents and the ArcGIS assistant.
+      </p>
+    </section>
+    <p id="error" class="error" role="alert" hidden></p>
+    <main class="workspace">
+      <section class="map-pane" aria-labelledby="map-heading">
+        <header class="pane-header map-toolbar">
+          <div class="section-title">
+            <i data-lucide="map" aria-hidden="true"></i>
+            <h2 id="map-heading">MapView</h2>
+            <span id="map-status" class="muted" role="status">Loading</span>
+          </div>
+          <div class="map-actions">
+            <label class="visually-hidden" for="basemap">Basemap</label>
+            <select id="basemap" disabled></select>
+            <button
+              id="toggle-panel"
+              class="secondary-button"
+              type="button"
+              aria-controls="demo-panel"
+              aria-expanded="true"
+            >
+              <i data-lucide="panel-left" aria-hidden="true"></i>
+              <span>Demo panel</span>
+            </button>
+          </div>
+        </header>
+        <div class="map-stage">
+          <div id="map-view" aria-label="Interactive Esri map"></div>
+          <aside id="demo-panel" class="flyout" aria-labelledby="panel-heading">
+            <header class="pane-header">
+              <div class="section-title">
+                <i data-lucide="wrench" aria-hidden="true"></i>
+                <h2 id="panel-heading">In-page tools</h2>
+              </div>
+              <button
+                id="close-panel"
+                class="icon-button"
+                type="button"
+                title="Close demo panel"
+                aria-label="Close demo panel"
+              >
+                <i data-lucide="x" aria-hidden="true"></i>
+              </button>
+            </header>
+            <div class="panel-content">
+              <p>
+                WebMCP exposes this page's JavaScript actions as structured
+                tools. No MCP server is needed.
+              </p>
+              <ol class="steps">
+                <li>
+                  Define a name, description, JSON Schema, and execute callback.
+                </li>
+                <li>Register the definitions with the browser's WebMCP API.</li>
+                <li>
+                  Transform the same definitions into ArcGIS FunctionTools.
+                </li>
+              </ol>
+              <h3>Try asking the assistant</h3>
+              <ul class="examples">
+                <li>"Close the demo panel."</li>
+                <li>"Switch to the topographic basemap."</li>
+                <li>"Open the panel and use imagery."</li>
+                <li>
+                  "Add a feature layer from this URL and zoom to all its
+                  features."
+                </li>
+              </ul>
+              <h3>Tool schemas</h3>
+              <div id="tool-list"></div>
+              <h3>Last tool result</h3>
+              <pre id="last-result" aria-live="polite">No calls yet</pre>
+              <a
+                href="https://webmachinelearning.github.io/webmcp/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >WebMCP specification</a
+              >
+            </div>
+          </aside>
+        </div>
+      </section>
+      <section class="chat-pane" aria-label="ArcGIS assistant">
+        <header class="pane-header">
+          <span id="activity" class="muted" role="status">No calls yet</span>
+          <button
+            id="new-conversation"
+            class="icon-button"
+            type="button"
+            title="New conversation"
+            aria-label="New conversation"
+            disabled
+          >
+            <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+          </button>
+        </header>
+        <div id="assistant-container">
+          <p class="empty-state" role="status">Loading assistant...</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
