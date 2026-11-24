@@ -69,9 +69,9 @@ export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 source "$NVM_DIR/nvm.sh"
 export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=4096"
 cd -- "$1"
-npm install --include=dev
-npm --prefix apps/helper-services-assistant install --include=dev
-npm --prefix apps/helper-services-assistant run build
+node clean-app-deps.cjs
+npm ci --include=dev
+npm run build
 REMOTE
 
 printf 'Deployment complete: %s:%s\n' "$REMOTE_HOST" "$REMOTE_DIR"

@@ -18,9 +18,12 @@ One `arcgis-assistant` with an Esri `LLMAgent` and `FunctionTool` registration f
 From the repository root:
 
 ```sh
-npm --prefix apps/helper-services-assistant ci
-npm --prefix apps/helper-services-assistant run dev
+npm ci --include=dev
+npm run dev --workspace apps/helper-services-assistant
 ```
+
+Dependencies and the lockfile are shared at the repository root with the MCP and
+webMCP apps. Do not install dependencies separately in this app directory.
 
 Open `http://127.0.0.1:5173/apps/helper-services-assistant/index.html` (use the port Vite prints if 5173 is occupied). Vite serves the repository root, so the existing app launcher and other apps remain available. The launcher opens the production build; use this direct source URL for live development.
 
@@ -41,10 +44,12 @@ Custom agents require Esri's npm packages. This app cannot run directly from `fi
 ## Verify And Build
 
 ```sh
-npm --prefix apps/helper-services-assistant test
-npm --prefix apps/helper-services-assistant run build
-npm --prefix apps/helper-services-assistant run preview
+npm test --workspace apps/helper-services-assistant
+npm run build --workspace apps/helper-services-assistant
+npm run preview --workspace apps/helper-services-assistant
 ```
+
+Run `npm run build` at the repository root to build all three npm-based apps.
 
 Tests cover all eight request contracts, registered tool callbacks, result publication, attachment metadata, cancellation, authentication expiry, and error handling. Callback tests mock the SDK classes and browser DOM. A separate regression uses the SDK's installed LangChain dependencies to verify streamed and non-streamed model/tool/model round trips with mocked model responses. Authenticated LLM orchestration still needs an authorized account for a live end-to-end test.
 

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>ArcGIS AI | MCP Assistant</title>
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="%APP_HOME_URL%" aria-label="ArcGIS AI apps">
+        <i data-lucide="layers" aria-hidden="true"></i>
+        <span>ArcGIS <strong>AI</strong></span>
+      </a>
+      <h1>MCP Assistant</h1>
+      <div id="account" class="account" hidden>
+        <span id="username"></span>
+        <button
+          id="sign-out"
+          class="icon-button"
+          type="button"
+          title="Sign out"
+          aria-label="Sign out"
+        >
+          <i data-lucide="log-out" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+    <section id="login" class="login" aria-label="ArcGIS sign-in">
+      <form id="sign-in-form">
+        <label for="portal-url">ArcGIS portal</label>
+        <input
+          id="portal-url"
+          type="url"
+          value="https://excalibur.mapsdevext.arcgis.com"
+          required
+          autocomplete="url"
+          spellcheck="false"
+        />
+        <button id="sign-in" class="primary-button" type="submit" disabled>
+          <i data-lucide="log-in" aria-hidden="true"></i>
+          <span>Sign in with ArcGIS</span>
+        </button>
+      </form>
+      <span id="login-status" class="muted" role="status"
+        >Loading ArcGIS...</span
+      >
+    </section>
+    <p id="error" class="error" role="alert" hidden></p>
+    <main class="workspace">
+      <aside class="server-pane" aria-label="MCP connection and tools">
+        <section class="connection" aria-labelledby="server-heading">
+          <header class="section-header">
+            <div class="section-title">
+              <i data-lucide="server" aria-hidden="true"></i>
+              <h2 id="server-heading">MCP server</h2>
+            </div>
+            <span
+              id="connection-status"
+              class="connection-status"
+              role="status"
+              data-state="offline"
+              >Disconnected</span
+            >
+          </header>
+          <form id="connect-form" autocomplete="off">
+            <label for="endpoint">Endpoint</label>
+            <div class="endpoint-field">
+              <input
+                id="endpoint"
+                name="mcp-server-endpoint"
+                type="url"
+                list="mcp-endpoints"
+                placeholder="https://example.com/mcp"
+                required
+                autocomplete="off"
+                data-1p-ignore="true"
+                data-lpignore="true"
+                data-bwignore="true"
+                spellcheck="false"
+              />
+              <button
+                id="mcp-sign-in"
+                class="icon-button"
+                type="button"
+                title="Sign in to MCP server"
+                aria-label="Sign in to MCP server"
+                disabled
+              >
+                <i data-lucide="log-in" aria-hidden="true"></i>
+              </button>
+            </div>
+            <datalist id="mcp-endpoints">
+              <option value="https://mcpstaging.webgistesting.net/server/mcp/default">ArcgGIS Enterprise MCP</option>
+              <option value="https://mcp.deepwiki.com/mcp">DeepWiki</option>
+              <option value="https://learn.microsoft.com/api/mcp">
+                Microsoft Learn
+              </option>
+              <option value="https://docs.mcp.cloudflare.com/mcp">
+                Cloudflare Docs
+              </option>
+              <option value="https://agents.cloudflare.com/mcp">
+                Cloudflare Agents SDK
+              </option>
+              <option value="https://mcp.context7.com/mcp">Context7</option>
+              <option value="https://mcp.exa.ai/mcp">Exa Search</option>
+              <option value="https://huggingface.co/mcp">Hugging Face</option>
+              <option value="https://mcp.jina.ai/v1">Jina AI</option>
+              <option value="https://gitmcp.io/docs">GitMCP</option>
+              <option value="https://gitmcp.io/Esri/jsapi-resources">
+                Esri JS Resources (GitMCP)
+              </option>
+              <option
+                value="https://gitmcp.io/modelcontextprotocol/typescript-sdk"
+              >
+                MCP TypeScript SDK (GitMCP)
+              </option>
+            </datalist>
+            <label for="transport">Transport</label>
+            <select id="transport">
+              <option value="http">Streamable HTTP</option>
+              <option value="sse">SSE (legacy)</option>
+            </select>
+            <label for="mcp-token"
+              >Bearer token <span class="muted">Optional</span></label
+            >
+            <input
+              id="mcp-token"
+              name="mcp-bearer-token"
+              type="password"
+              autocomplete="new-password"
+              data-1p-ignore="true"
+              data-lpignore="true"
+              data-bwignore="true"
+              spellcheck="false"
+            />
+            <div class="connection-actions">
+              <button
+                id="connect"
+                class="primary-button"
+                type="submit"
+                disabled
+              >
+                <i data-lucide="plug" aria-hidden="true"></i>
+                <span id="connect-label">Connect</span>
+              </button>
+              <button
+                id="disconnect"
+                class="icon-button"
+                type="button"
+                title="Disconnect"
+                aria-label="Disconnect"
+                disabled
+              >
+                <i data-lucide="unplug" aria-hidden="true"></i>
+              </button>
+            </div>
+          </form>
+          <p id="server-name" class="muted">No server</p>
+        </section>
+        <section class="tools-pane" aria-labelledby="tools-heading">
+          <header class="section-header">
+            <div class="section-title">
+              <i data-lucide="wrench" aria-hidden="true"></i>
+              <h2 id="tools-heading">Tools</h2>
+              <span id="tool-count" class="count">0</span>
+            </div>
+            <button
+              id="refresh-tools"
+              class="icon-button"
+              type="button"
+              title="Refresh tools and reset conversation"
+              aria-label="Refresh tools"
+              disabled
+            >
+              <i data-lucide="refresh-cw" aria-hidden="true"></i>
+            </button>
+          </header>
+          <p id="tool-warning" class="tool-warning" role="status" hidden></p>
+          <label class="visually-hidden" for="tool-filter">Filter tools</label>
+          <input
+            id="tool-filter"
+            type="search"
+            placeholder="Filter tools"
+            disabled
+          />
+          <div id="tool-list" class="tool-list">
+            <p class="empty-tools">No tools available</p>
+          </div>
+        </section>
+      </aside>
+      <section class="chat-pane" aria-label="Assistant chat">
+        <header class="chat-toolbar">
+          <span id="activity" class="muted" role="status">No calls yet</span>
+          <button
+            id="new-conversation"
+            class="icon-button"
+            type="button"
+            title="New conversation"
+            aria-label="New conversation"
+            disabled
+          >
+            <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+          </button>
+        </header>
+        <div id="assistant-container">
+          <p class="empty-state" role="status">Loading assistant...</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

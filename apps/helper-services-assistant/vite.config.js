@@ -7,7 +7,7 @@ const repositoryRoot = fileURLToPath(new URL("../../", import.meta.url));
 export default defineConfig(({ command }) => ({
   root: command === "build" ? appRoot : repositoryRoot,
   base: "./",
-  cacheDir: `${appRoot}node_modules/.vite`,
+  cacheDir: `${repositoryRoot}node_modules/.vite/helper-services-assistant`,
   optimizeDeps: {
     entries: ["apps/helper-services-assistant/index.html"],
   },
